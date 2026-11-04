@@ -9,7 +9,7 @@ interface Material {
 export function LinhaMaterial(props:Material){
     return (
 
-    <div className="grid grid-cols-5 gap-4 items-center border-b border-gray-200 hover:bg-gray-50">
+    <div className="grid grid-cols-5 gap-4 px-4 py-4 items-center bg-white border-b border-gray-200 hover:bg-gray-50">
     
     {/* Coluna 1: Material / Assunto */}
     <div className="flex flex-col">
@@ -26,12 +26,9 @@ export function LinhaMaterial(props:Material){
     {/* Coluna 4: Formato*/}
     <p className="text-gray-600">{props.formato}</p>
     
-        <div>
-            <button className="border border-gray-300 rounded px-4 text-sm font-semibold text-gray-700">
-            Abrir ↗
-            </button>
-        </div>
-
+        <button type="button"className="border border-gray-300 rounded px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+             Abrir ↗
+        </button>
     </div>
 );
 }
