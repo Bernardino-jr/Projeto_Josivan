@@ -1,8 +1,9 @@
 import { Navbar } from './components/Navbar';
 import { LinhaMaterial } from './components/LinhaMaterial';
-
+import { Filtros } from './components/Filtros';
 
 function App() {
+
   const materiais = [
     { id: 1, titulo: "Introdução ao React", assunto: "Componentes, propriedades e estado", disciplina: "Programação Web", periodo: "3º período", formato: "PDF" },
     { id: 2, titulo: "Modelagem de dados", assunto: "Modelo entidade-relacionamento", disciplina: "Banco de Dados", periodo: "2º período", formato: "PDF" },
@@ -18,6 +19,8 @@ function App() {
         <p className="text-gray-600 mt-2">
           Selecione o curso e o período abaixo para filtrar os materiais aprovados.
         </p>
+
+         <Filtros/>
 
         {/* SEGUNDO ELEMENTO: A Lista Dinâmica */}
         <div className="mt-8">
