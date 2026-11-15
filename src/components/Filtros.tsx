@@ -14,7 +14,7 @@ export function Filtros() {
         />
         
         {/* 4. BOTÃO (Classes limpas, separadas apenas por espaço) */}
-        <button className="bg-blue-700 text-white font-semibold rounded-md px-6 py-2 hover:bg-blue-800">
+        <button className="bg-yellow-400 text-white font-semibold rounded-md px-6 py-2 hover:bg-blue-700">
           Buscar
         </button>
 
