@@ -2,14 +2,19 @@ import { Navbar } from './components/Navbar';
 import { LinhaMaterial } from './components/LinhaMaterial';
 import { Filtros } from './components/Filtros';
 import { Tabs } from './components/Tabs';
+import { useState } from 'react';
 
 function App() {
+
+  const [abaAtiva, setAbaAtiva] = useState('Todos');
 
   const materiais = [
     { id: 1, titulo: "Introdução ao React", assunto: "Componentes, propriedades e estado", disciplina: "Programação Web", periodo: "3º período", formato: "PDF" },
     { id: 2, titulo: "Modelagem de dados", assunto: "Modelo entidade-relacionamento", disciplina: "Banco de Dados", periodo: "2º período", formato: "PDF" },
     { id: 3, titulo: "Lógica e algoritmos", assunto: "Estruturas de decisão", disciplina: "Lógica de Programação", periodo: "1º período", formato: "Planilha" } ];
-  return (
+  
+    return (
+
    <div className="min-h-screen relative z-0 bg-slate-50">
       <div className="absolute inset-0 opacity-10 bg-[url('/uninassau-bg.jpg')] bg-center bg-contain bg-no-repeat bg-fixed pointer-events-none"></div>
       <main className="max-w-6xl mx-auto p-6 relative z-10">
@@ -23,7 +28,7 @@ function App() {
         </p>
 
          <Filtros/>
-         <Tabs/>
+         <Tabs abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} />
         {/* SEGUNDO ELEMENTO: A Lista Dinâmica */}
         <div className="mt-8">
           {/* Cabeçalho das Colunas */}

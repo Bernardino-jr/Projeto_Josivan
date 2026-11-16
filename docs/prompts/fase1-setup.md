@@ -81,3 +81,19 @@ A aplicação possui agora uma arquitetura componentizada (`App.tsx` gerenciando
   * **Objetivo:** Refinar a legibilidade e acessibilidade (UX) sobrepondo textos em fundos com imagem, aumentando o "peso" da fonte (`font-medium`) e escurecendo os tons (`text-gray-900`).
 * **Prompt:** *"Certo, preciso adicionar as cores da uninassau nesse local [Tabs], o que fazer?"* / *"O itens só aparecem ao passar o mouse por cima, isso está coerente?"*
   * **Objetivo/Correção:** Refatoração do componente `Tabs.tsx` para remover fundos escuros conflitantes e resolver a falha de contraste (texto branco em fundo claro), garantindo a acessibilidade das abas inativas.
+
+  ## Fase 9: Gerenciamento de Estado (useState), Interatividade e Microcopy
+* **Prompt:** *"Assim e o que cada coisa faz? [Envio de código inicial do useState]"*
+  * **Objetivo/Solução:** Compreender a mecânica do *Hook* `useState`. Definição de como a memória do componente é lida (`abaAtiva`) e como ela deve ser obrigatoriamente atualizada através do *setter* (`setAbaAtiva`), respeitando a imutabilidade do React. Correção da convenção de nomenclatura de variáveis de *snake_case* (`aba_Ativa`) para o padrão da indústria *camelCase* (`abaAtiva`).
+* **Prompt:** *"Coloquei conforme instruído e ficou todo em branco. [Envio de erro 'Tela Branca da Morte' do React]"*
+  * **Objetivo/Correção:** Resolução de erro fatal de referência (ReferenceError). Entender que o JavaScript é *case-sensitive* e que a divergência de nomenclatura entre a declaração do estado e a sua chamada no `onClick` quebra a árvore de renderização.
+* **Prompt:** *"Funcionou, parabéns. Porém, para que isso exatamente? Qual a ideia de se utilizar esse procedimento? E preciso que me explique cada linha..."*
+  * **Ação Executada:** Aprofundamento no conceito de injeção dinâmica de CSS. Utilização de *Template Literals* (crases) combinada com o Operador Ternário (`condição ? true : false`) dentro da propriedade `className` para permitir que a interface reaja em tempo real ao clique do usuário, alternando classes do Tailwind CSS sem recarregar a página.
+* **Prompt:** *"Prossigamos! / Ao preencher o APP.tsx isso apareceu. [Erro de tipagem no componente pai]"*
+  * **Objetivo/Correção:** Implementação do conceito de Elevação de Estado (*Lifting State Up*). Migração da memória do componente filho (`Tabs.tsx`) para o palco principal (`App.tsx`), passando o estado e a função de atualização através de propriedades (*props*). Resolução de erro TypeScript `ts(2322)` ao substituir a passagem incorreta de props por *strings* (aspas) pela correta injeção de variáveis (chaves `{}`). Transformação de `<Tabs/>` em um *Dumb Component* (Componente de Apresentação).
+* **Prompt:** *"Preciso alterar esse nome e imagem, para a logo do que já possuo em public e aceito sugestões, ideias para colocar como nome."*
+  * **Ação Executada:** Refatoração do arquivo raiz `index.html`. Edição das tags `<title>` e `<link rel="icon">` (Favicon) no `<head>` do documento.
+* **Prompt:** *"Preciso que ilustre a ideia de comunidade, dos estudantes como criadores/mantedores."*
+  * **Ação Executada:** Aplicação de conceitos de UX Writing através de *Microcopy de Pertencimento*. Criação de um Banner de Comunidade com *Call to Action* (Chamada para Ação) no topo do painel principal para incentivar a colaboração orgânica dos alunos no sistema *Open Source*.
+* **Prompt:** *"Achei, muito obrigado. Mas a imagem não foi alterada, apenas o nome. / Ficou bem ruim a visualização, teria um formato adequado?"*
+  * **Objetivo/Correção:** Entendimento de engenharia de *assets* para web. Correção do erro de apontamento na propriedade `href` da imagem e adequação da proporção do *Favicon*. Compreensão da necessidade de utilizar arquivos quadrados puros (proporção 1:1, focados apenas no brasão, sem textos anexos) no formato `.png` com fundo transparente para garantir a legibilidade do ícone nas abas dos navegadores.
