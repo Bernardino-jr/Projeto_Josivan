@@ -97,3 +97,18 @@ A aplicação possui agora uma arquitetura componentizada (`App.tsx` gerenciando
   * **Ação Executada:** Aplicação de conceitos de UX Writing através de *Microcopy de Pertencimento*. Criação de um Banner de Comunidade com *Call to Action* (Chamada para Ação) no topo do painel principal para incentivar a colaboração orgânica dos alunos no sistema *Open Source*.
 * **Prompt:** *"Achei, muito obrigado. Mas a imagem não foi alterada, apenas o nome. / Ficou bem ruim a visualização, teria um formato adequado?"*
   * **Objetivo/Correção:** Entendimento de engenharia de *assets* para web. Correção do erro de apontamento na propriedade `href` da imagem e adequação da proporção do *Favicon*. Compreensão da necessidade de utilizar arquivos quadrados puros (proporção 1:1, focados apenas no brasão, sem textos anexos) no formato `.png` com fundo transparente para garantir a legibilidade do ícone nas abas dos navegadores.
+  ## Fase 10: Lógica do Modal, Renderização Condicional e Resolução de Bugs (Tela Branca)
+* **Prompt:** *"Realizado. E agora? E também, o que esse componente está fazendo?"* / *"Eu clico em adicionar materiais e nada acontece. Está corretoe?"*
+* **Objetivo/Solução:** Explicação da arquitetura de *Overlay* (sobreposição com `z-index`) do Modal. Religação do fluxo de estado (`abrirModal`) entre o gatilho de clique no componente filho (`Filtros.tsx`) e a renderização condicional (`modalAberto &&`) no componente pai (`App.tsx`).
+* **Prompt:** *"[Envio de erro 'Tela Branca da Morte']"* / *"Mudei apenas o nome para Modal e funcionou... porém, eis o resultado [Layout quebrado]"*
+* **Objetivo/Correção:** Resolução de erro fatal de referência (*ReferenceError*) no React causado por divergência na nomenclatura de importação de arquivos (`ModalEnvio` vs `Modal.tsx`). Refatoração completa da UI da janela flutuante, aplicando `flex-col` para o empilhamento correto dos elementos e `backdrop-blur` para desfoque de fundo, aprimorando a UX.
+
+## Fase 11: Finalização do Layout (Rodapé) e Tratamento de Conflitos Visuais
+* **Prompt:** *"Funcionou perfeitamente, porém, a uma linha em cima do nome UNINASSAU e está atrapalhando... Removendo ou abaixando essa linha?"* / *"Na verdade, aumentou ainda mais a cor."*
+* **Objetivo/Correção:** Criação do componente estático `Rodape.tsx`. Resolução de comportamento padrão do Tailwind CSS, onde a remoção da classe de cor mantendo o eixo (`border-t`) gerava uma linha sólida preta indesejada. Discussão técnica sobre design responsivo e o conflito entre o redimensionamento fluido de imagens de fundo (`bg-contain`) e elementos fixos do DOM, optando por um design *borderless* (sem linha) para máxima compatibilidade entre telas.
+
+## Fase 12: Planejamento de Rotas (React Router) e Refatoração da Navbar
+* **Prompt:** *"A tela de login que será a primeira... não é front end? Se for ser usada, no componente navbar, não deverá haver login, apenas o nome repositório, não é?"*
+* **Objetivo/Solução:** Planejamento arquitetural para a transição de SPA simples para múltiplas rotas utilizando *React Router*, separando Layout de Autenticação (público) do Layout do Acervo (privado).
+* **Prompt:** *"tenho o link oficial, do portal do aluno da instituição..."* / *"Ao invés do entrar com o Google, usar o link para acessar o portal."*
+* **Ação Executada:** Refatoração do componente `Navbar.tsx` com foco em minimalismo e integração ao ecossistema institucional. Implementação de um botão de redirecionamento seguro (`target="_blank" rel="noopener noreferrer"`) para o ADFS oficial da faculdade.

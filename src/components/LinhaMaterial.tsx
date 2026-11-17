@@ -13,7 +13,7 @@ export function LinhaMaterial(props:Material){
     
     {/* Coluna 1: Material / Assunto */}
     <div className="flex flex-col">
-        <strong className="text-yellow-400"> {props.titulo} </strong>    
+        <strong className="text-yellow-500"> {props.titulo} </strong>    
         <span className="text-sm text-blue-700">{props.assunto}</span>
     </div>
 
@@ -21,12 +21,12 @@ export function LinhaMaterial(props:Material){
     <p className="text-blue-700">{props.disciplina}</p>
 
     {/* Coluna 3: Periodo*/}
-    <p className="text-yellow-400">{props.periodo}</p>
+    <p className="text-yellow-500">{props.periodo}</p>
 
     {/* Coluna 4: Formato*/}
     <p className="text-blue-700">{props.formato}</p>
     
-        <button type="button"className="border border-gray-300 rounded px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+        <button type="button"className="border border-gray-300 rounded px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-yellow-500 transition-colors cursor-pointer">
              Abrir ↗
         </button>
     </div>

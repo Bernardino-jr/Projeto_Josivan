@@ -3,15 +3,29 @@ import { LinhaMaterial } from './components/LinhaMaterial';
 import { Filtros } from './components/Filtros';
 import { Tabs } from './components/Tabs';
 import { useState } from 'react';
+import { Modal } from './components/Modal';
+import { Rodape } from './components/Rodape';
 
 function App() {
 
+  const [modalAberto, setModalAberto] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState('Todos');
 
+  // 1. A LISTA ORIGINAL (Dados Brutos)
   const materiais = [
     { id: 1, titulo: "Introdução ao React", assunto: "Componentes, propriedades e estado", disciplina: "Programação Web", periodo: "3º período", formato: "PDF" },
     { id: 2, titulo: "Modelagem de dados", assunto: "Modelo entidade-relacionamento", disciplina: "Banco de Dados", periodo: "2º período", formato: "PDF" },
-    { id: 3, titulo: "Lógica e algoritmos", assunto: "Estruturas de decisão", disciplina: "Lógica de Programação", periodo: "1º período", formato: "Planilha" } ];
+    { id: 3, titulo: "Lógica e algoritmos", assunto: "Estruturas de decisão", disciplina: "Lógica de Programação", periodo: "1º período", formato: "Planilha" }
+  ];
+
+  // 2. A LISTA FILTRADA (Lógica Inteligente)
+  const materiaisFiltrados = materiais.filter((item) => {
+    if (abaAtiva === 'Todos') return true;
+    if (abaAtiva === 'PDFs') return item.formato === 'PDF';
+    if (abaAtiva === 'Vídeos') return item.formato === 'Vídeo';
+    if (abaAtiva === 'Planilhas') return item.formato === 'Planilha';
+    return false;
+  });
   
     return (
 
@@ -27,7 +41,7 @@ function App() {
           Selecione o curso e o período abaixo para filtrar os materiais aprovados.
         </p>
 
-         <Filtros/>
+         <Filtros abrirModal={() => setModalAberto(true)} />
          <Tabs abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} />
         {/* SEGUNDO ELEMENTO: A Lista Dinâmica */}
         <div className="mt-8">
@@ -41,7 +55,7 @@ function App() {
           </div>
 
           {/* Renderização Automática das Linhas */}
-          {materiais.map((item) => (
+          {materiaisFiltrados.map((item) => (
             <LinhaMaterial 
               key={item.id}
               id={item.id}
@@ -53,7 +67,9 @@ function App() {
             />
           ))}
         </div>
+        <Rodape />
       </main>
+      {modalAberto && <Modal fecharModal={() => setModalAberto(false)} />}
     </div>
   );
 }
