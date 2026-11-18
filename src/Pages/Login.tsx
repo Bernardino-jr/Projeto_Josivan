@@ -54,7 +54,7 @@ export function Login() {
 
             <button
               type="submit"
-              className="w-full mt-2 bg-[#1E3A8A] hover:bg-blue-900 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm"
+              className="w-full mt-2 bg-[#1E3A8A] hover:bg-blue-900 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm hover:bg-yellow-600"
             >
               Entrar no Repositório
             </button>
@@ -62,7 +62,7 @@ export function Login() {
 
           <div className="mt-6 text-center text-sm text-gray-500 border-t border-gray-100 pt-6">
             Primeiro acesso?{' '}
-            <a href="#" className="text-yellow-600 font-semibold hover:underline">
+            <a href="#" className="text-yellow-600 font-semibold hover:underline hover:text-blue-800">
               Solicite a sua senha
             </a>
           </div>
