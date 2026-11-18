@@ -1,12 +1,12 @@
-import { Navbar } from './components/Navbar';
-import { LinhaMaterial } from './components/LinhaMaterial';
-import { Filtros } from './components/Filtros';
-import { Tabs } from './components/Tabs';
+import { Navbar } from '../components/Navbar';
+import { LinhaMaterial } from '../components/LinhaMaterial';
+import { Filtros } from '../components/Filtros';
+import { Tabs } from '../components/Tabs';
 import { useState } from 'react';
-import { Modal } from './components/Modal';
-import { Rodape } from './components/Rodape';
+import { Modal } from '../components/Modal';
+import { Rodape } from '../components/Rodape';
 
-function App() {
+export function Repositorio() {
 
   const [modalAberto, setModalAberto] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState('Todos');
@@ -73,5 +73,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
