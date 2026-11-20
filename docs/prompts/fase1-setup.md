@@ -402,3 +402,62 @@ As próximas etapas devem ser feitas separadamente e com revisão:
 10. Somente depois iniciar a integração com back-end.
 
 **Status da Fase 18:** schema criado e verificado no Supabase. A integração da aplicação e as políticas de segurança ainda não foram implementadas.
+
+
+## Fase 19: Análise do Projeto e Planejamento da Integração do Banco
+
+* **Prompt:** *"projeto que está aberto agora veja o projeto, analise bem o projeto e não adicione nem altere nada até que eu fale."*
+  * **Objetivo/Solução:** Leitura completa do repositório sem nenhuma alteração. Mapeamento da stack (Vite 8, React 19, TypeScript 7, Tailwind 4, React Router 7), da estrutura de pastas (`Pages`, `components`, `Rotas.tsx`) e do histórico Git. Levantamento de pontos de atenção: `.gitignore` não ignorava o arquivo `.env`, ESLint configurado apenas para `.js/.jsx`, divergência entre os formatos aceitos no banco (`PDF/IMAGEM/TEXTO`), nas abas do front e no Modal, rota `/repositorio` sem proteção e arquivos SQL citados na Fase 17 ausentes do repositório.
+* **Prompt:** *"Minha parte que eu estou fazendo é dividido em três partes, né? Cada um foi com uma parte, um back, um front e um banco. Eu sou o banco, então eu preciso estruturar o projeto com o banco de dados. O banco ele está no Supabase, ele é o Postgre. Então eu preciso que você faça a ligação do banco de dados com o front-end e o back-end. Consegue fazer isso? Mas ainda não edite nada, só me diga o que você vai alterar."*
+  * **Objetivo/Solução:** Elaboração de um plano em três partes — (1) Banco: migrations versionadas, ligação com o Supabase Auth, RLS, Storage, view e dados de teste; (2) Front-end: cliente Supabase, serviços e rota protegida; (3) Back-end: dependente da decisão de arquitetura da equipe. Nenhum arquivo foi alterado nesta etapa.
+
+## Fase 20: Migrations Versionadas, Conexão com o Supabase e Teste a Seco
+
+* **Prompt:** *"faça a parte . se puder ir sempre comentando os codigos, eu agradeço."*
+  * **Ação Executada:** Criação da pasta `supabase/` com migrations SQL comentadas linha a linha: `0001_schema_inicial` (linha de base), `0002_usuario_auth`, `0003_fluxo_material`, `0004_rls`, `0005_storage`, `0006_view_materiais`, `0007_login_matricula` (opcional), além de `seed.sql` e `conferencia.sql`. Nenhum comando foi executado no banco nesta etapa.
+* **Prompt:** *"como faço pra conectar com o supabase? o que voce precisa ?"*
+  * **Objetivo/Solução:** Diferenciação entre a conexão da ferramenta de IA com o Supabase (autorização do plugin via `/mcp`) e a conexão do site com o banco (`Project URL` + `anon key`). Reforço de que a `service_role key` e a senha do banco nunca devem ser compartilhadas no chat nem colocadas no front-end.
+* **Prompt:** *"autorizado."* / *"ele ja esta concetado e com as contas corretoas. pode verificar ?"* / *"agora esta correto"*
+  * **Objetivo/Correção:** A primeira autorização deu acesso a outra organização (`Bernardino-jr's Org`), sem permissão sobre o projeto do banco. Após nova autorização com a organização `ropositorio_academico`, o projeto **Projeto Repositório Alunos** ficou acessível.
+  * **Ação Executada:** Leitura do banco real (somente consultas). Foram encontradas diferenças em relação ao diagrama inicial: IDs `BIGINT` (e não `INT`), coluna `nome_completo` (e não `nome`), coluna `matricula` já existente em `usuario`, ausência de `senha_hash`, colunas `data_atualizacao`, `data_inicio`/`data_fim`, `data_associacao`, CHECKs de motivo obrigatório na rejeição e `tamanho_bytes > 0`. A migration `0001` foi reescrita para ficar idêntica ao banco real e as demais foram corrigidas.
+* **Prompt:** *"faz o teste."* / *"aprovar teste"*
+  * **Objetivo/Correção:** O teste a seco (migrations + seed dentro de `BEGIN ... ROLLBACK`) foi recusado pela ferramenta de IA, pois a janela de confirmação de comandos de alteração do Supabase não aparecia na extensão do VS Code.
+  * **Ação Executada:** O script de teste foi executado manualmente no SQL Editor. Resultado: `TESTE_OK (tudo desfeito)` — 3 materiais visíveis na view, aluno sem papel sem acesso a histórico de moderação nem a dados de outros usuários, 22 policies, 3 regras de Storage, 1 bucket, 3 triggers e 9 funções. Consulta posterior confirmou que nada ficou gravado.
+
+## Fase 21: Aplicação das Migrations, Supabase Advisor, Seed e Versionamento
+
+* **Prompt:** *"letra A. pode fazer."*
+  * **Objetivo/Correção:** A aplicação automática via ferramenta (`apply_migration`) também foi recusada pelo mesmo motivo da fase anterior. Optou-se pela aplicação manual, arquivo por arquivo, no SQL Editor.
+* **Prompt:** *"o primeiro"* [print com "Success. No rows returned"] / *"clico em salvar ?"* / [prints das migrations 0003, 0004, 0005 e 0006]
+  * **Objetivo/Solução:** Esclarecido que o botão **Run** já aplica as mudanças no banco e que o **Save** apenas guarda o texto da consulta no painel. Após cada execução, uma consulta de leitura confirmou o resultado: coluna `periodo`, FK `fk_usuario_auth` e 3 triggers (0002); funções de envio/moderação e bloqueio de escrita direta nas tabelas (0003); 22 policies nas 13 tabelas (0004); bucket privado `materiais` com 10 MB e PDF/JPG/PNG/TXT (0005); view `vw_materiais` com `security_invoker` (0006).
+  * **Ação Executada:** Execução do **Supabase Advisor** (segurança e desempenho) e criação da migration `0008_ajustes_advisor`: bloqueio da função interna `rls_auto_enable` na API, 4 índices em chaves estrangeiras e separação das policies de administrador por operação. Nova verificação confirmou que não restaram problemas reais (36 policies; avisos restantes são intencionais).
+* **Prompt:** *"ok para o 01 e para o 04."*
+  * **Ação Executada:** Aplicação do `seed.sql` (curso ADS, 3 disciplinas com período, 3 turmas 2026/2, 1 usuário fictício e 3 materiais aprovados) e commit da pasta `supabase/` na branch `banco/integracao-supabase`, sem alterar arquivos do front-end ou do back-end.
+* **Prompt:** [print do erro `npm error enoent Could not read package.json`] / [print do erro `fatal: not a git repository`]
+  * **Objetivo/Correção:** Os comandos estavam sendo executados na pasta `PROJETO_JOSIVAN\`, enquanto o projeto fica em `PROJETO_JOSIVAN\Projeto_Josivan\Projeto_Josivan\`. Orientação para usar `cd` até a pasta correta, executar `npm install` antes do `npm run dev` e digitar o nome da branch em uma única linha no `git push`.
+
+## Fase 22: Pull Request e Alinhamento com o Back-end
+
+* **Prompt:** *"faz uma descrição com tudo."* [print da tela de criação do Pull Request]
+  * **Objetivo/Solução:** Investigação do aviso "Não é possível mesclar automaticamente": o conflito ocorre no próprio `fase1-setup.md`, pois banco e back-end registraram fases com a mesma numeração. A leitura da API do back-end (`backend/`) revelou que ela foi escrita com base no diagrama inicial e usa colunas inexistentes no banco real (`nome`, `senha_hash`, `material.id_turma`), bucket com outro nome (`materiais-ads`) e `getPublicUrl` em bucket privado.
+  * **Ação Executada:** Redação da descrição completa do Pull Request: resumo, tabela de migrations, forma de validação, estado do banco, tabela de incompatibilidades com a API, decisão de arquitetura pendente (Supabase Auth × JWT próprio), conflito de merge, instruções de uso para o front-end e checklist de pendências.
+* **Prompt:** *"preciso dessas informações:"* [print com as dúvidas do colega do back-end: `service_role key`, nome do bucket, colunas de `usuario` e `id_turma` para teste]
+  * **Objetivo/Solução:** Resposta direcionada ao colega do back-end: a `service_role` deve ir apenas para o `backend/.env` (preferencialmente convidando o colega para a organização no Supabase em vez de enviar a chave); o bucket se chama `materiais` e é privado, devendo-se salvar o caminho e gerar links temporários com `createSignedUrl`; a tabela `usuario` usa `nome_completo` e `email` obrigatório e não possui `senha_hash`; as turmas existentes são `id_turma` 4, 5 e 6, e a ligação material–turma é feita pela tabela `material_turma`.
+* **Prompt:** *"preciso que voce resuma todos os primpts dados até aqui, para fazer um novo commit com a atualização do documento fase1-setup.md. as nos prompts tem que estar la. sem sobrepor o que ja tem."*
+  * **Ação Executada:** Registro das Fases 19 a 22 ao final deste documento, preservando todo o conteúdo anterior, e commit da atualização na branch `banco/integracao-supabase`.
+
+### Estado ao final da Fase 22
+
+```text
+Migrations aplicadas no Supabase: 0002, 0003, 0004, 0005, 0006, 0008
+Migration opcional não aplicada: 0007 (login por matrícula)
+Seed de teste: aplicado (3 materiais aprovados)
+RLS: ativo nas 13 tabelas (36 policies) + 3 regras no Storage
+Bucket: materiais (privado, 10 MB, PDF/JPG/PNG/TXT)
+View para o acervo: vw_materiais
+Front-end alterado: não
+Back-end alterado: não
+Pendente: decisão de autenticação (Supabase Auth x JWT próprio),
+          ajuste da API aos nomes reais das colunas e
+          resolução do conflito de numeração neste documento
+```
