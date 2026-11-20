@@ -137,3 +137,268 @@ A aplicação possui agora uma arquitetura componentizada (`App.tsx` gerenciando
 ## Fase 16: Encerramento do Front-end e Passagem de Bastão (Handoff para Back-end)
 * **Prompt:** *"A partir de agora, será dado o sistema/projeto a outro integrante. Ele será o responsável direto e completo de toda a parte back-end. Preciso que crie um prompt detalhando tudo o que foi feito, por exemplo: Linguagem, IDE, Frameworks, Bibliotecas, tudo que pode e foi usado até agora... Coloque esse prompt que está sendo pedido também no resumo a ser entregue ao professor, preciso que ele saiba que a partir de agora, outro irá assumir o controle da 'embarcação'."*
 * **Objetivo/Ação Executada:** Conclusão formal do ciclo de desenvolvimento do Front-end e transição de liderança técnica (*Handoff*) para o integrante responsável pela arquitetura de Back-end e Banco de Dados (PostgreSQL). Elaboração de um *Prompt de Transferência de Contexto* contendo todo o inventário tecnológico utilizado (GitHub Codespaces, Vite, React, TypeScript, Tailwind CSS e React Router), o mapeamento completo de diretórios (`Rotas.tsx`, `Pages` e `components`), o estado atual dos dados simulados e as diretrizes pedagógicas de co-criação com a IA. Registro oficial da divisão de responsabilidades no projeto acadêmico, documentando que as próximas fases (API, autenticação, persistência de dados e integração) serão conduzidas sob nova autoria.
+
+
+## Fase 17: Planejamento do Banco de Dados e Modelo Relacional
+
+### Resumo dos prompts e respostas
+
+* **Prompt do usuário:** Solicitação para analisar o projeto acadêmico, identificar as entidades, os relacionamentos e estruturar um banco de dados antes de qualquer alteração no código.
+* **Retorno:** Foi identificado que o projeto tinha uma versão de front-end em React/Vite e que a estrutura de banco ainda precisava ser planejada. Foi recomendado separar a análise do banco das futuras etapas de front-end e back-end.
+
+* **Prompt do usuário:** Pedido para criar um modelo relacional tradicional, semelhante ao modelo visual enviado, com tabelas em caixas, campos, tipos, chaves primárias, chaves estrangeiras e cardinalidades.
+* **Retorno:** Foi elaborado um modelo inicial com as entidades `USUARIO`, `CURSO`, `DISCIPLINA`, `TURMA`, `MATRICULA`, `MATERIAL`, `ARQUIVO`, `CATEGORIA` e `MODERACAO`, incluindo tabelas associativas e explicação das cardinalidades.
+
+* **Prompt do usuário:** Solicitação para considerar que alunos e professores também podem ser moderadores e que uma pessoa pode possuir mais de um papel.
+* **Retorno:** O campo único de perfil foi substituído pelas tabelas `PAPEL` e `USUARIO_PAPEL`, criando uma relação muitos-para-muitos entre usuários e papéis. Foram considerados exemplos como aluno + moderador, professor + moderador e professor + administrador.
+
+* **Prompt do usuário:** Definição das regras do projeto: banco PostgreSQL no Supabase, arquivos em armazenamento, login por matrícula e senha ou conta Google/Gmail, materiais visíveis para toda a faculdade, aprovação obrigatória e formatos iniciais PDF, JPG/JPEG, PNG e TXT.
+* **Retorno:** O modelo passou a considerar PostgreSQL/Supabase, autenticação relacionada ao usuário acadêmico, histórico de aprovação e armazenamento dos metadados dos arquivos no banco, mantendo os arquivos físicos fora das tabelas.
+
+* **Prompt do usuário:** Esclarecimento de que o trabalho atual deve tratar exclusivamente do banco de dados, sem alterações no front-end ou no back-end.
+* **Retorno:** O escopo foi limitado a entidades, atributos, tipos, chaves, relacionamentos, cardinalidades, restrições, status, datas, script SQL e futura criação controlada das tabelas no Supabase.
+
+* **Prompt do usuário:** Definição de que o usuário não deve escolher manualmente se é aluno ou professor e de que um mesmo material pode ser relacionado a várias turmas, disciplinas ou contextos acadêmicos.
+* **Retorno:** A tabela `MATRICULA` passou a registrar `tipo_participacao` como `ALUNO` ou `PROFESSOR`, obtido a partir do cadastro acadêmico. Foi criada a tabela intermediária `MATERIAL_TURMA`, transformando o relacionamento entre `MATERIAL` e `TURMA` em muitos-para-muitos.
+
+* **Prompt do usuário:** Confirmação dos status `PENDENTE`, `APROVADO`, `REJEITADO` e `ARQUIVADO`, com fluxo de moderação e registro das datas do histórico.
+* **Retorno:** A tabela `MODERACAO` foi definida para registrar material, moderador, status anterior, status novo, motivo e data/hora da decisão. O fluxo considerado é `PENDENTE → APROVADO`, `PENDENTE → REJEITADO`, `REJEITADO → PENDENTE` e `APROVADO → ARQUIVADO`.
+
+* **Prompt do usuário:** Pedido para preparar primeiro um script SQL revisável e somente depois executar a estrutura no Supabase.
+* **Retorno:** Foi preparado o arquivo `schema-repositorio-academico.sql` com tipos enumerados, tabelas, chaves primárias, chaves estrangeiras, índices, restrições e dados iniciais de papéis e categorias. O script ainda não foi executado no Supabase.
+
+### Modelo de banco definido para revisão
+
+As tabelas planejadas são:
+
+```text
+USUARIO
+PAPEL
+USUARIO_PAPEL
+CURSO
+DISCIPLINA
+TURMA
+MATRICULA
+MATERIAL
+MATERIAL_TURMA
+ARQUIVO
+CATEGORIA
+MATERIAL_CATEGORIA
+MODERACAO
+```
+
+### Decisões importantes registradas
+
+1. O PostgreSQL do Supabase é o banco planejado para esta etapa.
+2. `USUARIO_PAPEL` permite múltiplos papéis para uma mesma pessoa.
+3. `MATRICULA` define a participação acadêmica como `ALUNO` ou `PROFESSOR`.
+4. O usuário não deve escolher manualmente seu tipo de participação.
+5. `MATERIAL_TURMA` permite que um material seja associado a várias turmas.
+6. Todo material começa com status `PENDENTE`.
+7. Todo material deve passar por aprovação antes de aparecer no acervo aprovado.
+8. `MODERACAO` preserva o histórico das alterações de status e suas datas.
+9. Os arquivos aceitos inicialmente são PDF, JPG/JPEG, PNG e TXT.
+10. O script SQL deve ser revisado antes de qualquer execução no Supabase.
+11. Nesta etapa não foram alterados o front-end, o back-end ou as telas da aplicação.
+12. O diagrama visual e a documentação relacional foram preparados separadamente para avaliação da equipe.
+
+### Arquivos de apoio produzidos
+
+* `modelo-banco-acervo-academico.png`: diagrama visual do modelo relacional.
+* `modelo-banco-acervo-academico.dot`: fonte editável do diagrama Graphviz.
+* `modelo-relacional-tradicional-acervo-academico.md`: explicação das tabelas, campos e cardinalidades.
+* `schema-repositorio-academico.sql`: script PostgreSQL preparado para revisão, ainda não executado.
+
+
+## Fase 18: Criação do Banco no Supabase e Verificação do Schema
+
+### Prompt do usuário
+
+* **Prompt:** *"Então... vou usar o meu próprio Supabase para subir o banco. Do que você precisa agora?"*
+* **Prompt:** *"Já consegue ver por aqui?"* — confirmação do projeto `Projeto Repositório Alunos` no painel do Supabase.
+* **Prompt:** *"Pode tentar executar."*
+* **Prompt posterior:** autorização para registrar no GitHub as informações feitas, detalhando os comandos e observações.
+
+### Projeto Supabase utilizado
+
+A execução foi feita no projeto autorizado pelo usuário:
+
+```text
+Nome: Projeto Repositório Alunos
+Organização: ropositorio_academico
+Project ID: vmuoeyiedmprkshzoqvx
+Região: us-east-1 — East US (North Virginia)
+Plano/tamanho: Free / Nano
+Status observado antes da execução: Healthy
+Migrations observadas antes da execução: nenhuma
+```
+
+Nenhuma senha, chave privada, `service_role key` ou arquivo `.env` foi solicitado ou exposto.
+
+### Comandos e ações realizados
+
+1. Acessado o painel do Supabase pelo projeto informado.
+2. Confirmada a autenticação manual do usuário no painel.
+3. Aberto o caminho do SQL Editor:
+
+```text
+https://supabase.com/dashboard/project/vmuoeyiedmprkshzoqvx/sql/new
+```
+
+4. O schema PostgreSQL preparado anteriormente foi inserido no editor Monaco do SQL Editor.
+5. O conteúdo completo foi conferido antes da execução. O modelo carregado no editor tinha aproximadamente 7.060 caracteres e 159 linhas SQL.
+6. Foi acionado o comando **Run** do SQL Editor.
+7. O Supabase retornou:
+
+```text
+Success. No rows returned
+```
+
+Esse resultado é esperado para comandos `CREATE`, `CREATE INDEX` e `INSERT` que não retornam linhas diretamente.
+
+### Comandos SQL executados
+
+O schema executado continha os seguintes grupos de comandos:
+
+#### Extensão e tipos enumerados
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TYPE tipo_participacao AS ENUM ('ALUNO', 'PROFESSOR');
+CREATE TYPE tipo_material AS ENUM ('PDF', 'IMAGEM', 'TEXTO');
+CREATE TYPE status_material AS ENUM ('PENDENTE', 'APROVADO', 'REJEITADO', 'ARQUIVADO');
+```
+
+#### Tabelas criadas
+
+```text
+usuario
+papel
+usuario_papel
+curso
+disciplina
+turma
+matricula
+material
+material_turma
+arquivo
+categoria
+material_categoria
+moderacao
+```
+
+#### Índices criados
+
+```sql
+idx_matricula_usuario
+idx_matricula_turma
+idx_material_autor
+idx_material_status
+idx_material_turma_turma
+idx_arquivo_material
+idx_moderacao_material_data
+```
+
+#### Dados iniciais inseridos
+
+Foram inseridos, usando `ON CONFLICT (nome) DO NOTHING`, os papéis:
+
+```text
+ALUNO
+PROFESSOR
+MODERADOR
+ADMINISTRADOR
+```
+
+Também foram inseridas as categorias:
+
+```text
+SLIDES
+EXERCICIO
+PROVA
+RESUMO
+AULA
+```
+
+### Consulta de verificação executada
+
+Depois da criação, foi executada uma consulta de conferência no SQL Editor:
+
+```sql
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;
+```
+
+### Resultado da consulta de verificação
+
+O Supabase retornou 13 tabelas no schema público:
+
+```text
+arquivo
+categoria
+curso
+disciplina
+material
+material_categoria
+material_turma
+matricula
+moderacao
+papel
+turma
+usuario
+usuario_papel
+```
+
+A tabela `MATERIAL_TURMA` foi confirmada no banco, assim como as tabelas associativas `MATERIAL_CATEGORIA` e `USUARIO_PAPEL`.
+
+### Observações importantes da execução
+
+1. O banco foi criado no projeto próprio do usuário no Supabase.
+2. A execução foi feita pelo SQL Editor com a conta autenticada do usuário.
+3. O schema não foi executado no projeto Manus nem em outro banco.
+4. O front-end e o back-end não foram alterados nesta execução.
+5. Nenhum usuário real foi inserido.
+6. Nenhum arquivo foi enviado ao Storage.
+7. Nenhuma senha foi armazenada.
+8. O campo `id_auth` foi criado como `UUID UNIQUE`, mas ainda não possui FK direta para `auth.users`.
+9. As regras de autorização por papel ainda precisam de RLS, funções, triggers ou implementação posterior.
+10. A regra de que todo material deve possuir pelo menos uma associação em `MATERIAL_TURMA` ainda deve ser garantida por fluxo transacional ou trigger.
+11. A tabela `MODERACAO` registra a estrutura histórica, mas o fluxo de moderação ainda não foi implementado no front-end ou back-end.
+12. O Supabase Storage ainda precisa ser configurado posteriormente para guardar os arquivos físicos.
+13. O modelo atual cria a estrutura do banco, mas não representa ainda a integração da aplicação com o banco.
+
+### Estado após a execução
+
+```text
+Banco PostgreSQL: criado
+Projeto Supabase: Projeto Repositório Alunos
+Tabelas públicas criadas: 13
+Script SQL executado: sim
+Resultado: Success. No rows returned
+Front-end alterado: não
+Back-end alterado: não
+Migrations do repositório: não criadas
+Storage configurado para os materiais: não
+RLS final configurado: não
+Usuários reais cadastrados: não
+```
+
+### Próximas etapas do banco
+
+As próximas etapas devem ser feitas separadamente e com revisão:
+
+1. Conferir colunas, chaves e constraints no Table Editor;
+2. Confirmar se `id_auth` deverá receber FK direta para `auth.users`;
+3. Configurar políticas RLS;
+4. Definir a função ou trigger para validar o papel de moderador;
+5. Definir a regra de associação obrigatória em `MATERIAL_TURMA`;
+6. Criar e configurar o bucket do Supabase Storage;
+7. Definir limites de tamanho e tipos de arquivo no Storage;
+8. Criar dados acadêmicos de teste, sem inserir dados reais ainda;
+9. Planejar migrations no repositório;
+10. Somente depois iniciar a integração com back-end.
+
+**Status da Fase 18:** schema criado e verificado no Supabase. A integração da aplicação e as políticas de segurança ainda não foram implementadas.
