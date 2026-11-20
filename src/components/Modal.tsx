@@ -10,7 +10,7 @@ export function Modal({ fecharModal, aoEnviarComSucesso }: ModalProps) {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [tipoMaterial, setTipoMaterial] = useState('PDF');
-  const [idTurma, setIdTurma] = useState('1');
+  const [idTurma, setIdTurma] = useState('4');
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [mensagemErro, setMensagemErro] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -129,9 +129,9 @@ export function Modal({ fecharModal, aoEnviarComSucesso }: ModalProps) {
               onChange={(e) => setIdTurma(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
             >
-              <option value="1">1º Período (Turma 1)</option>
-              <option value="2">2º Período (Turma 2)</option>
-              <option value="3">3º Período (Turma 3)</option>
+              <option value="4">1º Período — Lógica de Programação</option>
+              <option value="5">2º Período — Banco de Dados</option>
+              <option value="6">3º Período — Programação Web</option>
             </select>
           </div>
 

@@ -19,8 +19,8 @@ function gerarTokenAcesso(usuario: DadosUsuarioToken): string {
 router.post('/register', async (req: Request, res: Response) => {
   const { matricula, nome, email, senha } = req.body;
 
-  if (!matricula || !nome || !senha) {
-    return res.status(400).json({ erro: 'Preencha matrícula, nome e senha.' });
+  if (!matricula || !nome || !email || !senha) {
+    return res.status(400).json({ erro: 'Preencha matrícula, nome completo, e-mail e senha.' });
   }
 
   if (!supabase) {
@@ -31,21 +31,35 @@ router.post('/register', async (req: Request, res: Response) => {
 
   const { data: usuarioCriado, error } = await supabase
     .from('usuario')
-    .insert([{ matricula, nome, email: email || null, senha_hash: senhaHash, ativo: true }])
-    .select('id_usuario, matricula, nome')
+    .insert([
+      {
+        matricula,
+        nome_completo: nome,
+        email,
+        senha_hash: senhaHash,
+        ativo: true,
+      },
+    ])
+    .select('id_usuario, matricula, nome_completo, email')
     .single();
 
   if (error) {
-    const mensagemErro =
-      error.code === CODIGO_ERRO_DUPLICIDADE_POSTGRES
-        ? 'Matrícula ou e-mail já cadastrado no sistema.'
-        : error.message;
+    const ehDuplicidade = error.code === CODIGO_ERRO_DUPLICIDADE_POSTGRES;
+    const mensagemErro = ehDuplicidade
+      ? 'Matrícula ou e-mail já cadastrado no sistema.'
+      : error.message;
 
-    const statusHttp = error.code === CODIGO_ERRO_DUPLICIDADE_POSTGRES ? 409 : 400;
-    return res.status(statusHttp).json({ erro: mensagemErro });
+    return res.status(ehDuplicidade ? 409 : 400).json({ erro: mensagemErro });
   }
 
-  return res.status(201).json({ mensagem: 'Cadastro realizado com sucesso!', usuario: usuarioCriado });
+  return res.status(201).json({
+    mensagem: 'Cadastro realizado com sucesso!',
+    usuario: {
+      id_usuario: usuarioCriado.id_usuario,
+      matricula: usuarioCriado.matricula,
+      nome: usuarioCriado.nome_completo,
+    },
+  });
 });
 
 // POST /api/auth/login — Autenticação por matrícula e senha
@@ -62,11 +76,11 @@ router.post('/login', async (req: Request, res: Response) => {
 
   const { data: usuario, error } = await supabase
     .from('usuario')
-    .select('id_usuario, matricula, nome, senha_hash, ativo')
+    .select('id_usuario, matricula, nome_completo, senha_hash, ativo')
     .eq('matricula', matricula)
     .single();
 
-  if (error || !usuario || !usuario.ativo) {
+  if (error || !usuario || !usuario.ativo || !usuario.senha_hash) {
     return res.status(401).json({ erro: 'Matrícula ou senha inválidos.' });
   }
 
@@ -78,7 +92,7 @@ router.post('/login', async (req: Request, res: Response) => {
   const dadosToken: DadosUsuarioToken = {
     id_usuario: usuario.id_usuario,
     matricula: usuario.matricula,
-    nome: usuario.nome,
+    nome: usuario.nome_completo,
   };
 
   return res.status(200).json({
