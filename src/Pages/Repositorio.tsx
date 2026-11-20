@@ -1,39 +1,61 @@
+import { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { LinhaMaterial } from '../components/LinhaMaterial';
 import { Filtros } from '../components/Filtros';
 import { Tabs } from '../components/Tabs';
-import { useState } from 'react';
 import { Modal } from '../components/Modal';
 import { Rodape } from '../components/Rodape';
+import { URL_BASE_API } from '../services/api';
+
+interface MaterialAPI {
+  id_material: number;
+  titulo: string;
+  descricao: string;
+  tipo_material: string;
+  turma?: {
+    semestre?: number;
+    disciplina?: { nome?: string };
+  };
+}
 
 export function Repositorio() {
-
   const [modalAberto, setModalAberto] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState('Todos');
+  const [materiais, setMateriais] = useState<MaterialAPI[]>([]);
+  const [carregando, setCarregando] = useState(true);
 
-  // 1. A LISTA ORIGINAL (Dados Brutos)
-  const materiais = [
-    { id: 1, titulo: "Introdução ao React", assunto: "Componentes, propriedades e estado", disciplina: "Programação Web", periodo: "3º período", formato: "PDF" },
-    { id: 2, titulo: "Modelagem de dados", assunto: "Modelo entidade-relacionamento", disciplina: "Banco de Dados", periodo: "2º período", formato: "PDF" },
-    { id: 3, titulo: "Lógica e algoritmos", assunto: "Estruturas de decisão", disciplina: "Lógica de Programação", periodo: "1º período", formato: "Planilha" }
-  ];
+  async function carregarMateriaisAprovados() {
+    setCarregando(true);
+    try {
+      const resposta = await fetch(`${URL_BASE_API}/materiais`);
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        setMateriais(dados);
+      }
+    } catch {
+      console.warn('Não foi possível buscar materiais da API no momento.');
+    } finally {
+      setCarregando(false);
+    }
+  }
 
-  // 2. A LISTA FILTRADA (Lógica Inteligente)
+  useEffect(() => {
+    carregarMateriaisAprovados();
+  }, []);
+
   const materiaisFiltrados = materiais.filter((item) => {
     if (abaAtiva === 'Todos') return true;
-    if (abaAtiva === 'PDFs') return item.formato === 'PDF';
-    if (abaAtiva === 'Vídeos') return item.formato === 'Vídeo';
-    if (abaAtiva === 'Planilhas') return item.formato === 'Planilha';
+    if (abaAtiva === 'PDFs') return item.tipo_material === 'PDF';
+    if (abaAtiva === 'Vídeos') return item.tipo_material === 'VIDEO';
+    if (abaAtiva === 'Planilhas') return item.tipo_material === 'TXT';
     return false;
   });
-  
-    return (
 
-   <div className="min-h-screen relative z-0 bg-slate-50">
-      <div className="absolute inset-0 opacity-10 bg-[url('/uninassau-bg.jpg')] bg-center bg-contain bg-no-repeat bg-fixed pointer-events-none"></div>
+  return (
+    <div className="min-h-screen relative z-0 bg-slate-50">
+      <div className="absolute inset-0 opacity-10 bg-[url('/uninassau-bg.jpg')] bg-center bg-contain bg-no-repeat bg-fixed pointer-events-none" />
       <main className="max-w-6xl mx-auto p-6 relative z-10">
-        <Navbar/>
-        {/* PRIMEIRO ELEMENTO */}
+        <Navbar />
         <h1 className="text-2xl font-medium text-blue-700 mt-4">
           Materiais de Estudo
         </h1>
@@ -41,11 +63,10 @@ export function Repositorio() {
           Selecione o curso e o período abaixo para filtrar os materiais aprovados.
         </p>
 
-         <Filtros abrirModal={() => setModalAberto(true)} />
-         <Tabs abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} />
-        {/* SEGUNDO ELEMENTO: A Lista Dinâmica */}
+        <Filtros abrirModal={() => setModalAberto(true)} />
+        <Tabs abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} />
+
         <div className="mt-8">
-          {/* Cabeçalho das Colunas */}
           <div className="grid grid-cols-5 gap-4 px-4 py-3 text-xs font-bold text-blue-700 uppercase border-b border-gray-200 bg-gray-50 mb-4">
             <span>Material / Assunto</span>
             <span>Disciplina</span>
@@ -54,22 +75,35 @@ export function Repositorio() {
             <span>Acessar</span>
           </div>
 
-          {/* Renderização Automática das Linhas */}
-          {materiaisFiltrados.map((item) => (
-            <LinhaMaterial 
-              key={item.id}
-              id={item.id}
-              titulo={item.titulo} 
-              assunto={item.assunto}
-              disciplina={item.disciplina} 
-              periodo={item.periodo}
-              formato={item.formato}
-            />
-          ))}
+          {carregando ? (
+            <p className="text-center text-gray-500 py-8">Carregando materiais aprovados...</p>
+          ) : materiaisFiltrados.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">
+              Nenhum material aprovado encontrado nesta categoria.
+            </p>
+          ) : (
+            materiaisFiltrados.map((item) => (
+              <LinhaMaterial
+                key={item.id_material}
+                id={item.id_material}
+                titulo={item.titulo}
+                assunto={item.descricao}
+                disciplina={item.turma?.disciplina?.nome || 'ADS Geral'}
+                periodo={item.turma?.semestre ? `${item.turma.semestre}º período` : 'Geral'}
+                formato={item.tipo_material}
+              />
+            ))
+          )}
         </div>
         <Rodape />
       </main>
-      {modalAberto && <Modal fecharModal={() => setModalAberto(false)} />}
+
+      {modalAberto && (
+        <Modal
+          fecharModal={() => setModalAberto(false)}
+          aoEnviarComSucesso={carregarMateriaisAprovados}
+        />
+      )}
     </div>
   );
 }
