@@ -139,6 +139,10 @@ A aplicação possui agora uma arquitetura componentizada (`App.tsx` gerenciando
 * **Objetivo/Ação Executada:** Conclusão formal do ciclo de desenvolvimento do Front-end e transição de liderança técnica (*Handoff*) para o integrante responsável pela arquitetura de Back-end e Banco de Dados (PostgreSQL). Elaboração de um *Prompt de Transferência de Contexto* contendo todo o inventário tecnológico utilizado (GitHub Codespaces, Vite, React, TypeScript, Tailwind CSS e React Router), o mapeamento completo de diretórios (`Rotas.tsx`, `Pages` e `components`), o estado atual dos dados simulados e as diretrizes pedagógicas de co-criação com a IA. Registro oficial da divisão de responsabilidades no projeto acadêmico, documentando que as próximas fases (API, autenticação, persistência de dados e integração) serão conduzidas sob nova autoria.
 
 
+---
+
+# Trilha Banco de Dados (Supabase)
+
 ## Fase 17: Planejamento do Banco de Dados e Modelo Relacional
 
 ### Resumo dos prompts e respostas
@@ -461,3 +465,27 @@ Pendente: decisão de autenticação (Supabase Auth x JWT próprio),
           ajuste da API aos nomes reais das colunas e
           resolução do conflito de numeração neste documento
 ```
+
+---
+
+# Trilha Back-end (API)
+
+## Fase 17: Alinhamento Arquitetural e Isolamento do Ambiente Back-end
+* *Prompt:* "gemini, to fazendo um trabalho da faculdade em grupo. usando a linguagem react + typescript, react router dom. eu fiquei c a parte de back end. estamos usando o codespace (...) eu quero que me ajude apenas com a parte do back end, deixando toda a parte do banco de fora. ela ta sendo feita por outra pessoa."
+* *Objetivo/Solução:* Auditoria da estrutura do Front-end (Rotas.tsx, Login.tsx, Repositorio.tsx, Modal.tsx) confrontada com as regras de negócio e o Modelo Relacional. Separação oficial de responsabilidades entre Front-end, Back-end e Banco de Dados (Supabase). Criação da pasta isolada backend/ no GitHub Codespaces para gerenciar dependências e compilação do servidor sem interferir no ambiente Vite/React.
+* *Ação Executada:* Inicialização do projeto Node.js (npm init -y), criação do diretório backend/src, instalação das dependências de servidor (express, cors, dotenv, @supabase/supabase-js, bcryptjs, jsonwebtoken, multer) e de tipagem/desenvolvimento (typescript, tsx, @types/*).
+
+## Fase 18: Configuração Estrita do TypeScript, Variáveis de Ambiente e Servidor HTTP
+* *Prompt:* "ta certo ? / podemos seguir ? / aq no caso né ? se sim, por favor, consegue me mandar o json limpo dnv ? / ta dando erro / assim ?" [Envio de prints de terminal e configuração de arquivos no VS Code]
+* *Objetivo/Correção:* Substituição do tsconfig.json padrão por configuração limpa voltada ao Node.js com strict: true e forceConsistentCasingInFileNames: true (prevenindo erros de case-sensitivity no ambiente Linux do Codespaces). Resolução de duplicação de chaves JSON no backend/package.json e configuração dos scripts dev, build e start. Blindagem do .gitignore na raiz para impedir o versionamento acidental de arquivos .env.
+* *Ação Executada:* Criação e configuração dos arquivos .env, .env.example, src/config/supabase.ts (cliente de conexão resiliente com o Supabase) e src/server.ts com middlewares globais (cors e express.json) e endpoint de diagnóstico GET /api/health. Inicialização bem-sucedida do servidor na porta 3333 via tsx watch
+
+## Fase 19: Rotas MVP de Materiais, Upload de Arquivos (Multer + Storage) e Moderação
+* **Prompt:** *"ta tudo certo ? [Envio de prints confirmando authMiddleware.ts, authRoutes.ts e server.ts]"*
+* **Objetivo/Solução:** Construção das operações centrais do repositório acadêmico seguindo práticas de *Clean Code* (constantes semânticas para regras de negócio, funções auxiliares puras como `gerarNomeUnicoArquivo` e *Early Return*). Garantia de validação rigorosa de tamanho máximo (10 MB) e tipos MIME permitidos (PDF, JPG, JPEG, PNG e TXT), além do fluxo de moderação com histórico.
+* **Ação Executada:** Criação do arquivo `src/routes/materialRoutes.ts` com endpoints `GET /api/materiais` (listagem filtrada de materiais aprovados), `POST /api/materiais` (upload protegido via JWT e `multer` com persistência no Supabase Storage e tabelas `material`/`arquivo`) e `PATCH /api/materiais/:id/status` (aprovação/rejeição com registro na tabela `moderacao`). Integração final das rotas no `src/server.ts`.
+
+## Fase 20: Alinhamento de Contrato com o Banco Real (Supabase) e Bucket Privado
+* **Prompt:** *"[Repasse da especificação real do esquema Supabase: bucket privado 'materiais', tabela 'usuario' com 'nome_completo' e 'email' obrigatório, relação N:N 'material_turma' (IDs 4, 5 e 6) e regras de moderação]"*
+* **Objetivo/Solução:** Adequar a camada de persistência e integração aos nomes reais de colunas e restrições do banco PostgreSQL no Supabase, substituindo URLs públicas por URLs assinadas temporárias (`createSignedUrl`) e respeitando o relacionamento associativo `material_turma` e o histórico fidedigno de moderação.
+* **Ação Executada:** Atualização de `backend/src/routes/authRoutes.ts` (`nome_completo` e `email` obrigatório), refatoração de `backend/src/routes/materialRoutes.ts` (bucket privado `materiais`, `createSignedUrl` de 10 minutos, inserção em `material_turma`, leitura prévia de `status_anterior` e exigência de `motivo` na rejeição) e atualização dos IDs reais de turma (`4`, `5`, `6`) em `src/components/Modal.tsx`.
