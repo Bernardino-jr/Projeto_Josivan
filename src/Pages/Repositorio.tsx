@@ -12,6 +12,7 @@ interface MaterialAPI {
   titulo: string;
   descricao: string;
   tipo_material: string;
+  url_download?: string | null;
   turma?: {
     semestre?: number;
     disciplina?: { nome?: string };
@@ -23,6 +24,7 @@ export function Repositorio() {
   const [abaAtiva, setAbaAtiva] = useState('Todos');
   const [materiais, setMateriais] = useState<MaterialAPI[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [termoBusca, setTermoBusca] = useState('');
 
   async function carregarMateriaisAprovados() {
     setCarregando(true);
@@ -44,11 +46,20 @@ export function Repositorio() {
   }, []);
 
   const materiaisFiltrados = materiais.filter((item) => {
-    if (abaAtiva === 'Todos') return true;
-    if (abaAtiva === 'PDFs') return item.tipo_material === 'PDF';
-    if (abaAtiva === 'Vídeos') return item.tipo_material === 'VIDEO';
-    if (abaAtiva === 'Planilhas') return item.tipo_material === 'TXT';
-    return false;
+    const bateCategoria =
+      abaAtiva === 'Todos' ||
+      (abaAtiva === 'PDFs' && item.tipo_material === 'PDF') ||
+      (abaAtiva === 'Vídeos' && item.tipo_material === 'VIDEO') ||
+      (abaAtiva === 'Planilhas' && item.tipo_material === 'TXT');
+
+    const termo = termoBusca.toLowerCase().trim();
+    const bateTexto =
+      !termo ||
+      item.titulo.toLowerCase().includes(termo) ||
+      item.descricao.toLowerCase().includes(termo) ||
+      (item.turma?.disciplina?.nome || '').toLowerCase().includes(termo);
+
+    return bateCategoria && bateTexto;
   });
 
   return (
@@ -63,10 +74,14 @@ export function Repositorio() {
           Selecione o curso e o período abaixo para filtrar os materiais aprovados.
         </p>
 
-        <Filtros abrirModal={() => setModalAberto(true)} />
+        <Filtros
+          abrirModal={() => setModalAberto(true)}
+          termoBusca={termoBusca}
+          aoMudarBusca={setTermoBusca}
+        />
         <Tabs abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} />
 
-        <div className="mt-8">
+        <div className="mt-6">
           <div className="grid grid-cols-5 gap-4 px-4 py-3 text-xs font-bold text-blue-700 uppercase border-b border-gray-200 bg-gray-50 mb-4">
             <span>Material / Assunto</span>
             <span>Disciplina</span>
@@ -91,6 +106,7 @@ export function Repositorio() {
                 disciplina={item.turma?.disciplina?.nome || 'ADS Geral'}
                 periodo={item.turma?.semestre ? `${item.turma.semestre}º período` : 'Geral'}
                 formato={item.tipo_material}
+                urlDownload={item.url_download}
               />
             ))
           )}
