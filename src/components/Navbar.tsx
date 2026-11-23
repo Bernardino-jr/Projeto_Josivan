@@ -12,7 +12,7 @@ export function Navbar() {
       {/* Direita: Link Oficial do Portal */}
       <div>
         <a 
-          href="https://fs-educ.sempreser.com.br/adfs/ls/" 
+          href="https://aluno.sereduc.com/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="bg-yellow-500 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-md transition-colors shadow-sm inline-block text-sm"
